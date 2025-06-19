@@ -10,6 +10,7 @@ db.connect()
 
 app = Flask(__name__)
 router_maestro(db, app );
+print('HOLA')
 print(__name__ , 'NAME ')
 if __name__ == '__main__':
     app.run(debug=True)
