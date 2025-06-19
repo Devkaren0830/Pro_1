@@ -1,0 +1,61 @@
+# __pycache__ y archivos compilados
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entorno virtual
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+
+# Archivos de configuración del entorno
+*.env
+*.env.*
+
+# Archivos de log
+*.log
+
+# Archivos temporales de editores
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Archivos de VSCode o PyCharm (opcional)
+.vscode/
+.idea/
+
+# Bases de datos locales
+*.sqlite3
+*.db
+
+# Archivos de pruebas o cobertura
+htmlcov/
+.tox/
+.nox/
+.coverage
+coverage.xml
+*.cover
+.cache
+.pytest_cache/
+nosetests.xml
+test-results/
+
+# Archivos de distribución
+build/
+dist/
+*.egg-info/
+
+# Archivos creados por pip
+pip-log.txt
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Archivos de migraciones automáticas si no quieres subirlos
+# (opcional, depende del proyecto)
+# migrations/
+
