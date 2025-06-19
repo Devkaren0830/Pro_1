@@ -10,7 +10,7 @@ class additional_validations:
         
         if not re.search(r'[A-Z]', password):
             raise ValidationError('La contraseña debe contener al menos una letra mayúscula.')
-        if not re.search(r'[a-z]'):
+        if not re.search(r'[a-z]', password):
             raise ValidationError('La contraseña debe contener al menos una letra minuscula.')
         if not re.search(r'[0-9]', password):
             raise ValidationError('La contraseña debe contener al menos un número.')
@@ -27,10 +27,10 @@ class TeacherSchema(Schema):
     name = fields.String(required=True)
     email = fields.Email(required=True)
     apellidos = fields.String(required=True)
-    telefono = fields.Number(required=True)
-    especialidad = fields.String(required=True)
+    telefono = fields.Integer(required=True)
+    descripcion = fields.String(required=True)
     fecha_nacimiento = fields.Date(required=True)
-    Password = fields.String(
+    password = fields.String(
         required=True,
         validate=additional_validations.validator_password
     )

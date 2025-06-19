@@ -38,7 +38,7 @@ class DatabaseConnection:
         except Exception as e:
             print(f"Error inesperado: {e}")
 
-    def execute_query(self, query, params=None):
+    def execute_query(self, query:str, params=None):
         """Ejecutar una consulta SQL."""
         try:
             if self.cursor:
