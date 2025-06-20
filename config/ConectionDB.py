@@ -29,6 +29,8 @@ class DatabaseConnection:
                 host=self.db_host,
                 port=self.db_port
             )
+            print("Usuario conectado:", self.db_user)
+
             self.cursor = self.conn.cursor()
             print("Conexión exitosa a la base de datos.")
         except OperationalError as e:
@@ -53,7 +55,7 @@ class DatabaseConnection:
         except OperationalError as e:
             print(f"Error de ejecución de consulta: {e}")
         except Exception as e:
-            print(f"Error inesperado durante la ejecución de la consulta: {e}")
+            return {'Errors': str(e)}
 
     def close(self):
         """Cerrar la conexión y el cursor."""
@@ -62,5 +64,13 @@ class DatabaseConnection:
         if self.conn:
             self.conn.close()
         print("Conexión cerrada correctamente.")
+
+    def rollback(self):
+        """Revertir la transacción actual si hay un error."""
+        if self.conn:
+            self.conn.rollback()
+            print("Transacción revertida (rollback ejecutado).")
+
+
 
 

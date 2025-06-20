@@ -7,7 +7,6 @@ from flask import Flask
 db = DatabaseConnection()
 db.connect()
 
-
 app = Flask(__name__)
 router_maestro(db, app );
 print('HOLA')

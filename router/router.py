@@ -29,10 +29,10 @@ class router_maestro:
             validator = validator_teacher()
             validar_maestro = validator.validate_teacher(data)
             print(validar_maestro)
-            self.maestro.register_maestro(data, self.conn)
-            return jsonify(validar_maestro, 500)
+            maestro =  self.maestro.register_maestro(data, self.conn)
+            return jsonify(maestro['Mensaje']), maestro['num']
         except ValidationError:
-            return jsonify({'error': ValidationError})
+            return jsonify({'Mensaje': 'Error de validación de datos'}), 400
         
     def saludo():
         return 'HOLA cocomo estas'        
