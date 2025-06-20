@@ -1,7 +1,7 @@
 import bcrypt
 from config.ConectionDB import DatabaseConnection  # Importar la clase
 from datetime import datetime
-from flask import jsonify
+import smtplib
 
 class maestros():
     def register_maestro(self, data, db):
@@ -57,6 +57,7 @@ class maestros():
             else:
                 return {'Mensaje': 'Error inesperado en el servidor', 'num': 500}
         else:
+            self.enviar_correo()
             return {'Mensaje': 'Maestro registrado correctamente', 'num': 200}
 
     
@@ -69,3 +70,33 @@ class maestros():
             'dia': fecha[2]
         }
         return fechas
+
+    def enviar_correo(self):
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+
+        # Datos del remitente
+        remitente = 'lopezkaren43567@gmail.com'
+        contraseña = 'suvo pzzk kmma msbb'
+
+        # Datos del destinatario
+        destinatario = 'bermudezlopezpedrojose@gmail.com'
+
+        # Crear el mensaje
+        mensaje = MIMEMultipart()
+        mensaje['From'] = remitente
+        mensaje['To'] = destinatario
+        mensaje['Subject'] = 'Código en Python'
+
+        # Tu código como texto
+        codigo = """
+        FEOOO
+        """
+
+        mensaje.attach(MIMEText(codigo, 'plain'))
+
+        # Enviar correo por SMTP de Gmail
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as servidor:
+            servidor.login(remitente, contraseña)
+            servidor.send_message(mensaje)
+        print("Correo enviado con éxito.")
