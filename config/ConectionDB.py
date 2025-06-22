@@ -30,6 +30,7 @@ class DatabaseConnection:
                 port=self.db_port
             )
             print("Usuario conectado:", self.db_user)
+            print("database conectada:", self.db_name)
 
             self.cursor = self.conn.cursor()
             print("Conexión exitosa a la base de datos.")

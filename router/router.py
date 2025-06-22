@@ -28,6 +28,8 @@ class router_maestro:
             data = request.get_json()
             validator = validator_teacher()
             validar_maestro = validator.validate_teacher(data)
+            if 'errors' in validar_maestro:
+                return jsonify(validar_maestro['errors']), 500
             print(validar_maestro)
             maestro =  self.maestro.register_maestro(data, self.conn)
             return jsonify(maestro['Mensaje']), maestro['num']
