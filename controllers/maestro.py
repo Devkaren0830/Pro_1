@@ -1,77 +1,77 @@
 import bcrypt
-from config.ConectionDB import DatabaseConnection  # Importar la clase
-from datetime import datetime
 import smtplib
+from helpers.timestap import fecha_timestamp
+from helpers.random import numeros
+from repositories.repositorios_server import repositorios_
 
 class maestros():
-    def register_maestro(self, data, db):
-        # nombre = self.request.form('nombre')
-        # apellidos = self.request.form('apellidos')
-        # email = self.request.form('email')
-        # telefono = self.request.form('telefono')
-        # especialidad = self.request.form('especialidad')
-        # fecha_nacimiento = self.request.form('fecha_nacimiento')
-        # nombre = self.request.form('nombre')
-        print(data)
-        query = '''
-            INSERT INTO _maestros_
-            (nombre, apellidos, email, fecha_nacimiento, descripcion,
-            telefono, contrasenia)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        '''
-        print(query)
+    def __init__(self, base_datos):
+        self.db =base_datos
+
+    def register_maestro(self, data):
         contrasenia = bcrypt.hashpw(
             data['password'].encode('utf-8'),
             bcrypt.gensalt()
         )
+        fecha = fecha_timestamp.fecha(data['fecha_nacimiento'])
+        codigo = numeros.numero()
 
-        fecha_2 = self.fecha(data['fecha_nacimiento'])
-        anio = fecha_2['anio']       # '2003'
-        mes = fecha_2['mes']         # '08'
-        dia = fecha_2['dia']         # '30'
-        print("Año:", anio)
-        print("Mes:", mes)
-        print("Día:", dia)
-        fecha_2 = datetime(int(anio), int(mes), int(dia))
-        fecha_timestamp = int(fecha_2.timestamp())
+        repos = repositorios_(self.db)
+        r = repos.guardar(
+            '''nombre, apellidos, email, fecha_nacimiento, descripcion,
+            telefono, contrasenia, estado''',
+            '%s, %s, %s, %s, %s, %s, %s, %s',
+            '_maestros_',
+            (data['name'], 
+             data['apellidos'], 
+             data['email'],
+             fecha,
+             data['descripcion'],
+             data['telefono'],
+             contrasenia,
+             2)
+        )
 
-        print(f"FECHA {fecha_timestamp}")
-        print("Valor que se insertará en fecha_nacimiento:", fecha_timestamp, type(fecha_timestamp))
-
-        r = db.execute_query(query, (
-            data['name'], 
-            data['apellidos'], 
-            data['email'],
-            fecha_timestamp,
-            data['descripcion'],
-            data['telefono'],
-            contrasenia
-        ))
+       
         print("Resultado de la inserción: ", r)
+
+        usuario = repos.consultar(
+                '''
+                SELECT idx FROM _maestros_
+                WHERE email = %s
+                ''',
+                (data['email'],)
+            )
+
+        print("Resultado de la consulta: ", usuario)
+      
 
         if isinstance(r, dict) and r.get('Errors'):
             print(r['Errors'])
-            db.rollback()
+            self.db.rollback()
             if 'email_unico' in r['Errors']:
                 return {'Mensaje': 'El email ya está registrado', 'num': 400}
             else:
                 return {'Mensaje': 'Error inesperado en el servidor', 'num': 500}
-        else:
-            self.enviar_correo()
-            return {'Mensaje': 'Maestro registrado correctamente', 'num': 200}
+        
+        if isinstance(usuario, dict) and usuario.get('Errors'):
+            print(usuario['Errors'])
+            self.db.rollback()
+            return {'Mensaje': 'Error inesperado en el servidor', 'num': 500}
+        
+        if(usuario[0]):
+             id_r = usuario[0][0]
+             r = repos.guardar(
+                '''ID_Registro, codigo, tipo''',
+                '%s, %s, %s',
+                '_codigos_',
+                (id_r, codigo, 1)
+            )
 
-    
+        self.enviar_correo( data['email'], codigo)
+        return {'Mensaje': 'Maestro registrado correctamente', 'num': 200}
 
-    def fecha(self, fecha):
-        fecha = fecha.split('-')
-        fechas = {
-            'anio': fecha[0],
-            'mes': fecha[1],
-            'dia': fecha[2]
-        }
-        return fechas
-
-    def enviar_correo(self):
+    def enviar_correo(self, email, codigo):
         from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
 
@@ -80,17 +80,18 @@ class maestros():
         contraseña = 'suvo pzzk kmma msbb'
 
         # Datos del destinatario
-        destinatario = 'bermudezlopezpedrojose@gmail.com'
+        destinatario = email
 
         # Crear el mensaje
         mensaje = MIMEMultipart()
         mensaje['From'] = remitente
         mensaje['To'] = destinatario
-        mensaje['Subject'] = 'Código en Python'
+        mensaje['Subject'] = 'Verificación de registro'
 
         # Tu código como texto
-        codigo = """
-        FEOOO
+        codigo = f"""
+            El codigo de verificación es: 
+            {codigo}
         """
 
         mensaje.attach(MIMEText(codigo, 'plain'))

@@ -6,7 +6,7 @@ from flask import Flask
 # Usar la clase importada
 db = DatabaseConnection()
 db.connect()
-
+db.rollback()
 app = Flask(__name__)
 router_maestro(db, app );
 print('HOLA')

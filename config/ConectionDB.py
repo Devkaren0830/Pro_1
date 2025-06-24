@@ -50,12 +50,14 @@ class DatabaseConnection:
                 if query.strip().lower().startswith("select"):
                     return self.cursor.fetchall()
                 else:
-                    self.conn.commit()  # Para consultas que modifican la base de datos
+                    return self.conn.commit()  # Para consultas que modifican la base de datos
             else:
                 print("No hay una conexión activa.")
         except OperationalError as e:
-            print(f"Error de ejecución de consulta: {e}")
+            self.rollback()
+            return {'Errors': str(e)}
         except Exception as e:
+            self.rollback()
             return {'Errors': str(e)}
 
     def close(self):
