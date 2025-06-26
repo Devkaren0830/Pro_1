@@ -1,14 +1,14 @@
 from flask import request, jsonify
 from validator.validator_shema import validator_teacher
 from marshmallow import ValidationError
-from controllers.maestro import maestros
+from controllers.teacher import teachers_controller
 
 class router_maestro:
  
     def __init__(self, db, app):
         self.conn = db
         self.app = app
-        self.maestro = maestros(self.conn)
+        self.teacher = teachers_controller(self.conn)
         self.validator = validator_teacher()
 
            # Registrar rutas manualmente
@@ -18,9 +18,9 @@ class router_maestro:
             view_func=self.register_teacher
         )
         app.add_url_rule(
-            '/verificar_codigo_registro/<id_registro>',
+            '/verify_code_register/<id_register>',
             methods=['POST'],
-            view_func=self.verificar_codigo_registro_maestro
+            view_func=self.verify_master_registration_code
         )
         app.add_url_rule(
             '/saludo',
@@ -39,24 +39,24 @@ class router_maestro:
             if 'errors' in validar_maestro:
                 return jsonify(validar_maestro['errors']), 500
             print(validar_maestro)
-            maestro =  self.maestro.register_maestro(data)
-            return jsonify(maestro['Mensaje']), maestro['num']
+            master =  self.teacher.register_teacher(data)
+            return jsonify(master['Mensaje']), master['num']
         except ValidationError:
             return jsonify({'Mensaje': 'Error de validación de datos'}), 400
         
-    def verificar_codigo_registro_maestro(self, id_registro):
+    def verify_master_registration_code(self, id_register):
         try:
             data = request.get_json()
-            validar_codigo = self.validator.validar_codigo_registro(data)
-            if 'errors' in validar_codigo:
-                return jsonify(validar_codigo['errors']), 500
+            validate_code = self.validator.validate_registration_code(data)
+            if 'errors' in validate_code:
+                return jsonify(validate_code['errors']), 500
             
-            validar_codigo = self.maestro.validar_codigo_registro(
+            validate_code = self.teacher.validate_code_register(
                 data,
-                id_registro
+                id_register
             )
 
-            return jsonify({'Mensaje': 'HOLA'}), 200 
+            return jsonify({'Mensaje': validate_code['Message']}), validate_code['num'] 
         except ValidationError:
             return jsonify({'Mensaje': 'Error de validación de datos'}), 400
         

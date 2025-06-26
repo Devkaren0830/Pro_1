@@ -1,8 +1,8 @@
-class repositorios_:
+class repositories_:
     def __init__(self, db):
         self.db = db
 
-    def guardar(self, column_tabla, parametros, tabla, data):
+    def save(self, column_tabla, parametros, tabla, data):
         query = f'''
             INSERT INTO {tabla}
             ({column_tabla})
@@ -14,12 +14,13 @@ class repositorios_:
 
         return r
     
-    def consultar(self, consulta, data):
+    def consult_update(self, consulta, data):
          r = self.db.execute_query(
              consulta,
              data
          )
          return r
+    
     
     
     

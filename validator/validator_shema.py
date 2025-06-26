@@ -20,13 +20,13 @@ class additional_validations:
         return password  
     
     @staticmethod
-    def validar_codigo(codigo):
+    def validate_code(code):
         try:
-            if len(codigo) > 5:
+            if len(code) > 5:
                 raise ValidationError('El codigo es incorrecto')
 
-            cod = int(codigo)
-            return codigo
+            cod = int(code)
+            return code
         except ValidationError:
             raise ValidationError('El codigo es incorrecto')
 
@@ -35,19 +35,19 @@ class additional_validations:
 class TeacherSchema(Schema):
     name = fields.String(required=True)
     email = fields.Email(required=True)
-    apellidos = fields.String(required=True)
-    telefono = fields.Integer(required=True)
-    descripcion = fields.String(required=True)
-    fecha_nacimiento = fields.Date(required=True)
+    last_name = fields.String(required=True)
+    phone = fields.Integer(required=True)
+    description = fields.String(required=True)
+    date_birth = fields.Date(required=True)
     password = fields.String(
         required=True,
         validate=additional_validations.validator_password
     )
 
-class ValidarCodigoRegistro(Schema):
-    codigo = fields.String(
+class ValidateCodeRegister(Schema):
+    code = fields.String(
         required=True, 
-        validate=additional_validations.validar_codigo    
+        validate=additional_validations.validate_code    
     )
 
 class validator_teacher:
@@ -62,9 +62,9 @@ class validator_teacher:
             return {'errors': e.messages}
     
     @staticmethod
-    def validar_codigo_registro(data):
+    def validate_registration_code(data):
         try: 
-            schema = ValidarCodigoRegistro()
+            schema = ValidateCodeRegister()
             r = schema.load(data)
             return {'message': 'Código de registro validado', 'data': r}
         except ValidationError as e:
