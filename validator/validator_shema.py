@@ -18,9 +18,18 @@ class additional_validations:
             raise ValidationError('La contraseña debe contener al menos un carácter especial.')
 
         return password  
+    
+    @staticmethod
+    def validar_codigo(codigo):
+        try:
+            if len(codigo) > 5:
+                raise ValidationError('El codigo es incorrecto')
 
-        
-        
+            cod = int(codigo)
+            return codigo
+        except ValidationError:
+            raise ValidationError('El codigo es incorrecto')
+
 
 # 1. Definir el esquema como clase
 class TeacherSchema(Schema):
@@ -35,6 +44,12 @@ class TeacherSchema(Schema):
         validate=additional_validations.validator_password
     )
 
+class ValidarCodigoRegistro(Schema):
+    codigo = fields.String(
+        required=True, 
+        validate=additional_validations.validar_codigo    
+    )
+
 class validator_teacher:
     # 2. Función que usa el esquema para validar
     @staticmethod 
@@ -45,5 +60,12 @@ class validator_teacher:
             return {'message': 'Docente validado', 'data': r}
         except ValidationError as e:
             return {'errors': e.messages}
-
-        
+    
+    @staticmethod
+    def validar_codigo_registro(data):
+        try: 
+            schema = ValidarCodigoRegistro()
+            r = schema.load(data)
+            return {'message': 'Código de registro validado', 'data': r}
+        except ValidationError as e:
+            return {'errors': e.messages}
