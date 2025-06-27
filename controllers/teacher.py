@@ -53,14 +53,14 @@ class teachers_controller():
             print(r['Errors'])
             self.db.rollback()
             if 'email_unico' in r['Errors']:
-                return {'Mensaje': 'El email ya está registrado', 'num': 400}
+                return {'Message': 'El email ya está registrado', 'num': 400}
             else:
-                return {'Mensaje': 'Error inesperado en el servidor', 'num': 500}
+                return {'Message': 'Error inesperado en el servidor', 'num': 500}
         
         if isinstance(user, dict) and user.get('Errors'):
             print(user['Errors'])
             self.db.rollback()
-            return {'Mensaje': 'Error inesperado en el servidor', 'num': 500}
+            return {'Message': 'Error inesperado en el servidor', 'num': 500}
         
         if(user[0]):
              id_r = user[0][0]
@@ -72,7 +72,7 @@ class teachers_controller():
             )
 
         self.send_mail( data['email'], code)
-        return {'Mensaje': 'Maestro registrado correctamente', 'num': 200}
+        return {'Message': 'Maestro registrado correctamente', 'num': 200}
 
     def send_mail(self, email, code):
         from email.mime.text import MIMEText
@@ -84,7 +84,7 @@ class teachers_controller():
         # Datos del destinatario
         addressee = email
 
-        # Crear el mensaje
+        # Crear el Message
         menssage = MIMEMultipart()
         menssage['From'] = sender
         menssage['To'] = addressee
@@ -108,6 +108,7 @@ class teachers_controller():
         # Verificar si esxiste el id del registro
         print(f'DATA  {data}')
         code = data['code']
+        current_date = date_timestamp.current_date()
         id_register_verify = self.repository.consult_update(
             '''
                 SELECT json_build_object(
@@ -116,15 +117,18 @@ class teachers_controller():
                 as maestros FROM _maestros_ m
                 INNER JOIN _codigos_ on m.idx = _codigos_.id_registro
                 and _codigos_.codigo = %s
-                WHERE idx = %s  
+                WHERE idx = %s 
+                AND m.fecha - %s > 600
+
             ''',
             (
                 code,
                 id_register,
+                current_date
             )
         )
 
-        print('Consulta registro ' , len(id_register_verify))
+        print('Consulta registro ' , (id_register_verify))
         if(len(id_register_verify) > 0):
             # Actualizar el estado del registro a 1 (verificado)    
             r = self.repository.consult_update(
@@ -144,6 +148,6 @@ class teachers_controller():
             else:
                 print("Registro verificado correctamente")
                 return {'Message': 'Código de registro verificado', 'num': 200}
-            # return {'Mensaje': 'Código de registro verificado', 'num': 200}
+            # return {'Message': 'Código de registro verificado', 'num': 200}
         else:
-            return {'Message': 'Error en el servidor', 'num': 404}
+            return {'Message': 'El código ingresado no es válido o ha expirado. Por favor, verifica e intenta nuevamente.', 'num': 404}        

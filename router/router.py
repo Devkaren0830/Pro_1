@@ -28,7 +28,7 @@ class router_maestro:
         )
 
     def home(self):
-        return  jsonify({'Mensaje': "Servidor funcionando correctamente"})
+        return  jsonify({'Message': "Servidor funcionando correctamente"})
 
     
     def register_teacher(self):
@@ -40,9 +40,9 @@ class router_maestro:
                 return jsonify(validar_maestro['errors']), 500
             print(validar_maestro)
             master =  self.teacher.register_teacher(data)
-            return jsonify(master['Mensaje']), master['num']
+            return jsonify(master['Message']), master['num']
         except ValidationError:
-            return jsonify({'Mensaje': 'Error de validación de datos'}), 400
+            return jsonify({'Message': 'Error de validación de datos'}), 400
         
     def verify_master_registration_code(self, id_register):
         try:
@@ -56,9 +56,9 @@ class router_maestro:
                 id_register
             )
 
-            return jsonify({'Mensaje': validate_code['Message']}), validate_code['num'] 
+            return jsonify({'Message': validate_code['Message']}), validate_code['num'] 
         except ValidationError:
-            return jsonify({'Mensaje': 'Error de validación de datos'}), 400
+            return jsonify({'Message': 'Error de validación de datos'}), 400
         
     def saludo():
         return 'HOLA cocomo estas'        
