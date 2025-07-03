@@ -2,6 +2,7 @@
 from config.ConectionDB import DatabaseConnection  # Importar la clase
 from router.router import router_maestro
 from flask import Flask
+# jhdsfdjhkgfd
 
 # Usar la clase importada
 db = DatabaseConnection()
