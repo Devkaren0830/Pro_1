@@ -1,13 +1,14 @@
 import bcrypt
-import smtplib
 from helpers.timestap import date_timestamp
 from helpers.random import numbers_random
 from repositories.repositories_server import repositories_
+from controllers.teacher_student import teacher_student_function
 
 class teachers_controller():
     def __init__(self, base_datos):
         self.db =base_datos
         self.repository = repositories_(self.db)
+        self.teacher_student = teacher_student_function(self.db)
 
     def register_teacher(self, data):
         password = bcrypt.hashpw(
@@ -71,38 +72,8 @@ class teachers_controller():
                 (id_r, code, 1)
             )
 
-        self.send_mail( data['email'], code)
+        self.teacher_student.send_mail( data['email'], code)
         return {'Message': 'Maestro registrado correctamente', 'num': 200}
-
-    def send_mail(self, email, code):
-        from email.mime.text import MIMEText
-        from email.mime.multipart import MIMEMultipart
-
-        sender = 'lopezkaren43567@gmail.com'
-        password = 'suvo pzzk kmma msbb'
-
-        # Datos del destinatario
-        addressee = email
-
-        # Crear el Message
-        menssage = MIMEMultipart()
-        menssage['From'] = sender
-        menssage['To'] = addressee
-        menssage['Subject'] = 'Verificación de registro'
-
-        # Tu código como texto
-        code = f"""
-            El codigo de verificación es: 
-            {code}
-        """
-
-        menssage.attach(MIMEText(code, 'plain'))
-
-        # Enviar correo por SMTP de Gmail
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as servidor:
-            servidor.login(sender, password)
-            servidor.send_message(menssage)
-        print("Correo enviado con éxito.")
 
     def validate_code_register(self, data, id_register):
         # Verificar si esxiste el id del registro
@@ -118,12 +89,15 @@ class teachers_controller():
                 INNER JOIN _codigos_ on m.idx = _codigos_.id_registro
                 and _codigos_.codigo = %s
                 WHERE idx = %s 
-                AND m.fecha - %s > 600
+                AND m.estado = 2
+                AND %s - m.fecha <= 600 
+                AND %s - m.fecha  >= 0
 
             ''',
             (
                 code,
                 id_register,
+                current_date,
                 current_date
             )
         )
