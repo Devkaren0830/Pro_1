@@ -4,7 +4,7 @@ from marshmallow import ValidationError
 from controllers.teacher import teachers_controller
 
 class router_maestro:
- 
+  
     def __init__(self, db, app):
         self.conn = db
         self.app = app
@@ -25,6 +25,11 @@ class router_maestro:
         app.add_url_rule(
             '/saludo',
             view_func=self.saludo
+        )
+        app.add_url_rule(
+            '/login_teacher',
+            methods=['POST'],
+            view_func=self.login_teacher
         )
 
     def home(self):
@@ -61,6 +66,19 @@ class router_maestro:
             return jsonify({'Message': 'Error de validación de datos'}), 400
         
     def saludo():
-        return 'HOLA cocomo estas'        
-    
+        return 'HOLA cocomo estas'  
+
+    def login_teacher(self):
+        try:
+            print('Iniciando sesión del docente', request)
+            if not request.data:
+                return jsonify({'Message': 'No se recibieron datos'}), 400
+            data = request.get_json(force=True)
+            validate_login = self.validator.validate_teacher_login(data)
+            if 'errors' in validate_login:
+                return jsonify(validate_login['errors']), 500
+            login_teacher = self.teacher.validate_teacher_login(data)
+            return jsonify(login_teacher['Message']), 200    
+        except ValidationError as e:
+            return jsonify({'Message': 'Error de validación de datos', 'errors': e.messages}), 400
     

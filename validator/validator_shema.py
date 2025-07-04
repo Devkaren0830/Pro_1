@@ -50,6 +50,12 @@ class ValidateCodeRegister(Schema):
         validate=additional_validations.validate_code    
     )
 
+class ValidateLoginTeacher(Schema):
+    email = fields.Email(required=True)
+    password = fields.String(
+        required=True
+    )
+
 class validator_teacher:
     # 2. Función que usa el esquema para validar
     @staticmethod 
@@ -67,5 +73,14 @@ class validator_teacher:
             schema = ValidateCodeRegister()
             r = schema.load(data)
             return {'message': 'Código de registro validado', 'data': r}
+        except ValidationError as e:
+            return {'errors': e.messages}
+    
+    @staticmethod
+    def validate_teacher_login(data):
+        try:
+            schema = ValidateLoginTeacher()
+            r = schema.load(data)
+            return {'message': 'Docente validado', 'data': r}
         except ValidationError as e:
             return {'errors': e.messages}

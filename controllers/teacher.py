@@ -14,7 +14,7 @@ class teachers_controller():
         password = bcrypt.hashpw(
             data['password'].encode('utf-8'),
             bcrypt.gensalt()
-        )
+        ).decode('utf-8')
         date = date_timestamp.date(data['date_birth'])
         code = numbers_random.number()
         current_date = date_timestamp.current_date()
@@ -125,3 +125,37 @@ class teachers_controller():
             # return {'Message': 'Código de registro verificado', 'num': 200}
         else:
             return {'Message': 'El código ingresado no es válido o ha expirado. Por favor, verifica e intenta nuevamente.', 'num': 404}        
+        
+    def validate_teacher_login(self, data):
+        email = data['email']
+        passwordUser = data['password'].encode('utf-8')
+        user = self.repository.consult_update(
+            '''
+            SELECT json_build_object(
+                'id', idx,
+                'password', contrasenia
+            ) as maestro
+            from _maestros_
+            where email = %s
+            ''',
+            (email, )
+        )
+
+        if getattr(user, 'Errors', None):
+            return {'Message': 'Error inesperado en el servidor', 'num': 500}
+
+        if len(user) == 0:
+            return {'Message': 'Datos incorrectos', 'num': 404}
+        
+        hash_ =   user[0][0]['password'].encode('utf-8')
+        
+    
+        result = bcrypt.checkpw(
+            passwordUser,
+            hash_
+        )
+
+        if result:
+            return {'Message': 'Inicio de sesión exitoso', 'num': 200}
+        else:
+            return {'Message': 'Datos incorrectos', 'num': 401}
